@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from store.models import Product,Variation
 from .models import Cart , CartItem
-
+from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
 from django.http import HttpResponse
@@ -115,17 +115,16 @@ def cart(request,total=0, qunatity=0, cart_item=None):
         tax = (2 * total)/100
         grand_total = total +tax
         
-    except ObjectNotExist:  
+    except ObjectDoesNotExist:  
         pass    #just ignore      
     
 
     context ={  #for passing all the values to the templates
-        'total' :total,
+        'total': total,
         'qunatity': qunatity,
         'cart_items': cart_items,
         'tax'       : tax,
-        'grand_total' : grand_total,
-
+        'grand_total': grand_total,
     }
 
     return render(request,'store/cart.html', context)

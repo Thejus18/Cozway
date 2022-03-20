@@ -141,3 +141,11 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
     
 }
+
+
+#SMTP CONFIGRATION
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'thejusmathew18@gmail.com'
+EMAIL_HOST_PASSWORD = 'inception@18'
+EMAIL_USE_TLS = True
