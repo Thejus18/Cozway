@@ -14,6 +14,10 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 
+from carts.views import _cart_id
+from carts.models import Cart,CartItem
+import requests
+
 def register(request):
     if request.method == 'POST':
           form =  RegistertionForm(request.POST)
@@ -57,9 +61,63 @@ def login(request):
 
 
         if user is not None:
+            try:
+                cart = Cart.objects.get(cart_id=_cart_id(request))     
+                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                if is_cart_item_exists:
+                    cart_item =CartItem.objects.filter(cart=cart)   #this will bring all the cart_items that are assigned to this cart_id
+                    
+                    #Getting the product variation by cart_id
+                    product_variation=[]
+                    for item in cart_item:
+                        variation =item.variations.all()
+                        product_variation.append(list(variation))  #bcz by default it's a query set
+
+                    #get the cart items from the user to access his product variation
+                    cart_item = CartItem.objects.filter( user=user)     #Here the user is the authenticated user
+                    ex_var_list =[] # getting excisting variation list from the database
+                    id = []
+                    for item in cart_item: #checking whether the current variation is the excisting variation, if equal then we are going to increase the current variation
+                        excisting_variation = item.variations.all()
+                        ex_var_list.append(list(excisting_variation))
+                        id.append(item.id)
+
+                    #product_variation= [1,2,3,4,5,6]
+                    #ex_var_list = [4,6,3,5]
+                    #To get the common product variation inside both the above list i.e Product_variation and ex_var_list
+                    for pr in product_variation:
+                        if pr in ex_var_list:
+                            index = ex_var_list.index(pr)   #Gives the position where the found the common item
+                            item_id = id[index]
+                            item = CartItem.objects.get( id=item_id)
+                            item.qunatity +=1
+                            item.user = user    #Assigning the current user to the cart item
+                            item.save()
+                        else:
+                             cart_item = CartItem.objetcs.filter(cart=cart)
+                             for item in cart_item:
+                                item.user = user
+                                item.save() 
+                                
+            
+            except:
+                pass    #it will go to the except block if only there is cart_items in the cart
             auth.login(request, user)
             messages.success(request,"You are now logged in ")
-            return redirect('dashboard')
+            url = request.META.get('HTTP_REFERER')  #HTTP_REFERER- it will grab the previous url from we came
+            try:
+                query = requests.utils.urlparse(url).query
+                
+                #splitting the equals part
+                # next-/cart/checkout/  Here 'next' is the key and 'cart/checkout is the value
+                params = dict(x.split('=') for x in query.split('&'))   # this will make- next-/cart/checkout/, the dictonary 
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+               
+            except:
+                 return redirect('dashboard')
+               
         else:
             messages.error(request, "Invalid login credentials")
             return redirect('login')    
