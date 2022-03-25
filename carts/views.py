@@ -48,14 +48,14 @@ def add_cart(request, product_id):
                 item_id=id[index]
                 item = CartItem.objects.get(product=product, id=item_id)
                 item.qunatity +=1
-                item.save()
+                item.save()        #for saving the payment details inside the database
             else:
                 #create new cart_iyem 
                 item = CartItem.objects.create(product=product, qunatity=1,user =current_user)    
                 if len(product_variation) > 0:
                     item.variations.clear()
                     item.variations.add(*product_variation)   #here the star will add all the product variations
-                item.save()
+                item.save()        #for saving the payment details inside the database
         else :
             cart_item = CartItem.objects.create(
                 product = product,
@@ -90,7 +90,7 @@ def add_cart(request, product_id):
             cart = Cart.objects.create(
                 cart_id = _cart_id(request)
             )
-        cart.save()
+        cart.save()    #for saving the payment details inside the database
 
         is_cart_item_exists = CartItem.objects.filter(product=product, cart=cart).exists()
         if is_cart_item_exists:        #for displaying the cart and products together
