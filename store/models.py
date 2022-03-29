@@ -1,6 +1,7 @@
 from django.db import models
 from category.models import Category
 from django.urls import reverse
+from accounts.models import Account
 
 # Create your models here.
 class Product(models.Model):
@@ -45,3 +46,19 @@ class Variation(models.Model):
 
     def __str__(self):
         return self. variation_value
+
+
+class ReviewRating(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)     #CASCADE is beacause if the product is deleted then the review ratings should be deleted
+    user = models.ForeignKey(Account, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=100, blank =True)
+    review = models.TextField(max_length=500, blank=True)
+    rating = models.FloatField()
+    ip = models.CharField(max_length=20, blank=True)
+    status = models.BooleanField(default=True)  #the status field is bcz if the admin want to delete the rating, he can delete it 
+    created_date = models.DateTimeField(auto_now_add=True)    
+    updated_at= models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):                                          #string represenatation of the Model
+        return self. subject

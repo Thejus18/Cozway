@@ -58,6 +58,9 @@ class Account(AbstractBaseUser):
 
     objects = MyAccountManager()
 
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'            #for printing the full name in the customer reviews
+
     def __str__(self):
         return self.email
 
