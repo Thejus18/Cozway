@@ -4,6 +4,7 @@ from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from orders.models import Order
 
 # Create your views here.
 #verifcation Email
@@ -17,6 +18,7 @@ from django.core.mail import EmailMessage
 from carts.views import _cart_id
 from carts.models import Cart,CartItem
 import requests
+
 
 def register(request):
     if request.method == 'POST':
@@ -151,7 +153,12 @@ def activate(request,uidb64, token): #here we will decode the token and Uid
 
 @login_required(login_url ='login')     #it can be acceses only if we are logged in
 def dashboard(request):
-    return render(request,'accounts/dashboard.html')
+    orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id,is_ordered=True)
+    orders_count = orders.count()
+    context={
+        'orders_count': orders_count,
+    }
+    return render(request,'accounts/dashboard.html',context)
 
 
 def forgotPassword(request):
@@ -217,3 +224,10 @@ def resetPassword(request):
              return redirect('resetPassword')  
     else:          
       return render(request,'accounts/resetPassword.html')
+
+def my_orders(request):
+    orders= Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')    #-created_at - By putting this hypen it will give the result in descending order
+    context={
+        'orders': orders,
+    }
+    return render(request, 'accounts/my_orders.html',context)
