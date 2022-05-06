@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import django_heroku
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -25,7 +27,7 @@ SECRET_KEY = '63&+qc)kdly1g)!qc9y7ozel+g1ibm_q*#qz99^k5bh!uu3896'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -136,6 +138,7 @@ STATIC_ROOT= BASE_DIR /'static'
 STATICFILES_DIRS = [
     'Cozway/static',
 ]
+django_heroku.settings(locals())
 
 #media files configration
 MEDIA_URL = '/media/'
@@ -147,6 +150,9 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
     
 }
+
+# Activate Django-Heroku
+django_heroku.settings(locals())    #to load the database information
 
 
 #SMTP CONFIGRATION
